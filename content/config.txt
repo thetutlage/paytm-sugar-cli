@@ -1,0 +1,7 @@
+controllers_path: 'controllers'
+views_path: 'views'
+sass_path: 'assets/sass'
+use_coffee: <%= isCoffee %>
+uglify_js: true
+prefix_css: true
+minify_css: true

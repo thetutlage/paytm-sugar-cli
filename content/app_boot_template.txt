@@ -1,0 +1,18 @@
+boot = require '../../core/boot'
+
+###
+Inject dependencies inside your boot function call
+
+Example - boot(['someModule','anotherModule'])
+###
+boot();
+
+###
+Uncomment when you create your first template
+require('./templates')
+###
+
+###
+Uncomment when you create your first controller
+require('./controllers')
+###

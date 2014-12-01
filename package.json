@@ -1,0 +1,25 @@
+{
+  "name": "paytm-sugar-cli",
+  "version": "0.0.0",
+  "description": "Kick start your paytm angular project",
+  "main": "index.js",
+  "dependencies": {
+    "chalk": "^0.5.1",
+    "inquirer": "^0.8.0",
+    "js-yaml": "^3.2.3",
+    "lodash": "^2.4.1",
+    "log-symbols": "^1.0.1",
+    "nut-cli": "^0.0.2",
+    "shelljs": "^0.3.0",
+    "terminal-menu-program": "^0.0.17"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "sugar help"
+  },
+  "bin": {
+    "sugar": "index.js"
+  },
+  "author": "amanvirk <virk.officials@gmail.com>",
+  "license": "ISC"
+}

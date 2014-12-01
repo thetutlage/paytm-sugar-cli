@@ -1,0 +1,98 @@
+var gulp = require('gulp'),
+gutil = require('gulp-util'),
+browserify = require('gulp-browserify'),
+concat = require('gulp-concat'),
+clean = require('gulp-clean'),
+coffee = require('gulp-coffee'),
+argv = require('yargs').argv,
+uglify = require('gulp-uglify'),
+ngAnnotate = require('gulp-ng-annotate'),
+gzip = require('gulp-gzip'),
+sass = require('gulp-ruby-sass'),
+minifyCSS = require('gulp-minify-css'),
+yaml = require('gulp-yaml'),
+watch = require('gulp-watch'),
+templateCache = require('gulp-angular-templatecache'),
+gulpif = require('gulp-if'),
+autoprefixer = require('gulp-autoprefixer');
+
+var app,app_config;
+
+gulp.task('config',function(){
+  return gulp.src('./apps/'+app+'/config.yaml')
+  .pipe(yaml())
+  .pipe(setGlobals());
+});
+
+function setGlobals(){
+  function transform(file, cb){
+    var configJSON = file.contents.toString();
+    config = JSON.parse(configJSON);
+    app_config = config;
+    cb(null,file);
+  }
+  return require('event-stream').map(transform);
+}
+
+gulp.task('coffee',['config'],function(){
+  if(app_config.use_coffee){
+    return gulp.src(['./apps/'+app+'/**/*.coffee','./core/**/*.coffee'],{base: './'})
+    .pipe(coffee({bare: true}))
+    .pipe(gulp.dest('./'));
+  }
+});
+
+gulp.task('htmltong',['config'],function(){
+  return gulp.src('./apps/'+app+'/'+app_config.views_path+'/**/*.html')
+  .pipe(templateCache({module:'<%= app %>',moduleSystem:'Browserify'}))
+  .pipe(gulp.dest('./apps/'+app));
+});
+
+gulp.task('sass',['config'],function(){
+  return gulp.src('./apps/'+app+'/'+app_config.sass_path+'/app.scss')
+  .pipe(sass({sourcemap: false,compass: true}))
+  .pipe(gulpif(app_config.prefix_css,autoprefixer({
+    browsers: ['last 2 versions'],
+    cascade: false
+  })))
+  .on('error', function (err) { console.log(err.message); })
+  .pipe(gulpif(app_config.minify_css,minifyCSS({keepBreaks:false})))
+  .pipe(gulp.dest('./dist/'+app));
+});
+
+gulp.task('browserify',['config','coffee','htmltong'],function() {
+  return gulp.src(['./apps/'+app+'/boot.js'])
+  .pipe(browserify({
+    insertGlobals: false,
+    debug: true
+  }))
+  .pipe(concat('bundle.js'))
+  .pipe(ngAnnotate())
+  .pipe(gulpif(app_config.uglify_js,uglify()))
+  .pipe(gulp.dest('dist/'+app));
+});
+
+gulp.task('copy-assets',function(){
+  gulp.src('./apps/'+app+'/assets/**/*.{eot,svg,ttf,woff,png,gif,jpg,jpeg,css}')
+  .pipe(gulp.dest('dist/'+app+'/assets'));
+});
+
+gulp.task('build',function(){
+  if(typeof(argv.app) == 'undefined' || argv.app.length == 0){
+    throw new Error("You must specify an app name , you can find your app inside apps folder");
+  }else{
+    app = argv.app;
+    gulp.start(['coffee','htmltong','browserify','sass','copy-assets']);
+  }
+});
+
+gulp.task('watch',function(){
+  if(typeof(argv.app) == 'undefined' || argv.app.length == 0){
+    throw new Error("You must specify an app name , you can find your app inside apps folder");
+  }else{
+    app = argv.app;
+    watch(['apps/'+app+'/**/*.coffee','core/**/*.coffee','apps/'+app+'/'+app_config.sass_path+'/*.scss','apps/'+app+'/'+app_config.views_path+'/**/*.html'],function(){
+      gulp.start('build');
+    });
+  }
+});

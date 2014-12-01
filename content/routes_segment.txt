@@ -1,0 +1,7 @@
+app = require 'sugar-angularjs'
+  .module '<%= app %>'
+
+module.exports = -> app.config ($routeSegmentProvider) ->
+  $routeSegmentProvider
+  .when '/' , 'home'
+  return

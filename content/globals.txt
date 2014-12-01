@@ -1,0 +1,2 @@
+use_coffee: <%= isCoffee %>
+angular_app: <%= app_name %>

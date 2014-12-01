@@ -1,0 +1,18 @@
+<%= requires %>
+boot = (dependencies,param) ->
+  deps = ['<%= deps %>']
+  if typeof dependencies is 'object'
+    deps = deps.concat dependencies
+  app = angular.module('<%= app %>',deps);
+  if typeof param isnt "undefined" then param initAngularApp else initAngularApp()
+  routes = require './ROUTES'
+  routes()
+  return
+
+initAngularApp = () ->
+  angular.element(document).ready () ->
+    angular.bootstrap document,["<%= app %>"]
+    return
+  return
+
+module.exports = boot
